@@ -123,7 +123,7 @@ export function actionsFromConditions(
 
   let stun = Number(conditions.stunned ? conditions.stunned.value : null);
   let slowed = Number(conditions.slowed ? conditions.slowed.value : null);
-  let quicken = Number(conditions.bySlug('quickened')[0].value);
+  let quicken = conditions.bySlug('quickened').length >= 1 ? 1 : 0;
 
   // if stunned no reactions
   if (stun > 0) {
