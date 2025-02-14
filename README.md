@@ -74,13 +74,17 @@ Currently WIP I may have missed many interactions.
 - settings are here to stay!
   - all buttons can be turned off and on in the settings now
 
+##### v 1.10.1
+
+- fixed [#15](https://github.com/MoonIsFalling/pf2e-display-actions/issues/15)
+
 #### v 1.11.0
 
 - discontinued support for v10 of Foundry
+- added support for v11 of Foundry
 
 #### v 1.12.0
 
-- skipped testing for v11 of Foundry
 - added v12
 
 ## Roadmap
