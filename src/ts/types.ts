@@ -1,7 +1,7 @@
-import {ModuleData} from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/packages.mjs';
+import {ModuleHomebrewData} from 'foundry-pf2e';
 import {DisplayActions2e} from './apps/displayActions';
 
-export interface MyModule extends ModuleData {
+export interface MyModule extends ModuleHomebrewData {
   displayActions2e: DisplayActions2e[];
 }
 

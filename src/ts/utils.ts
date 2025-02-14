@@ -1,6 +1,6 @@
-import {ConditionPF2e} from '../../types/src/module/item';
+import {ActorConditions, ActorPF2e, ScenePF2e, TokenDocumentPF2e} from 'foundry-pf2e';
 import {DisplayActions2e} from './apps/displayActions';
-import {condtionModifierTable, moduleId} from './constants';
+import {moduleId} from './constants';
 import {EmitData, MyModule} from './types';
 
 export function handleShowToAll(data: EmitData) {
@@ -22,8 +22,8 @@ export function handleShowWithPermission(data: EmitData) {
 export function handleUpdate(data: EmitData) {
   let module = game.modules.get(moduleId) as unknown as MyModule;
   let nameInTitle = game.users?.find((user: User) => {
-    return user.data._id === data.state.sentFromUserId;
-  })?.data.name;
+    return user._id === data.state.sentFromUserId;
+  })?.name;
 
   if (nameInTitle) {
     module.displayActions2e.forEach(app => {
@@ -115,23 +115,25 @@ function checkAndBuildApp(data: EmitData): DisplayActions2e {
   return newApp;
 }
 
-export function actionsFromConditions(conditions: Map<string, ConditionPF2e>): [number, number] {
+export function actionsFromConditions(
+  conditions: ActorConditions<ActorPF2e<TokenDocumentPF2e<ScenePF2e> | null>>,
+): [number, number] {
   let numOfActions = 3;
   let numOfReactions = 1;
 
-  let stun = conditions.get('stunned');
-  // stunned overwrites slow thus it must be handled first
-  if (stun) {
-    numOfActions = stun[0].value! * condtionModifierTable['stunned'];
-  } else {
-    conditions.forEach(condition => {
-      let slug: string = condition.system.slug;
-      if (condtionModifierTable[slug]) {
-        let valMod = condition.system.value.isValued ? condition.value! : 1;
-        numOfActions += condtionModifierTable[slug!] * valMod;
-      }
-    });
+  let stun = Number(conditions.stunned ? conditions.stunned.value : null);
+  let slowed = Number(conditions.slowed ? conditions.slowed.value : null);
+  let quicken = Number(conditions.bySlug('quickened')[0].value);
+
+  // if stunned no reactions
+  if (stun > 0) {
+    numOfReactions = 0;
   }
+
+  // only the bigger value between stunned and slowed is relevant
+  let decrementActions = stun >= slowed ? stun : slowed;
+
+  numOfActions = numOfActions + quicken - decrementActions;
 
   return [numOfActions, numOfReactions];
 }

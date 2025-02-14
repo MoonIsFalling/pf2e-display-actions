@@ -1,14 +1,7 @@
 import * as fsPromises from 'fs/promises';
 import copy from 'rollup-plugin-copy';
-import scss from 'rollup-plugin-scss';
 import {defineConfig, Plugin} from 'vite';
 import {resolve as pathResolve} from 'path';
-import checker from 'vite-plugin-checker';
-import commonjs from '@rollup/plugin-commonjs';
-import resolve from '@rollup/plugin-node-resolve';
-
-import './src/styles/module.css';
-import './src/styles/styles.css';
 
 // const path = require('path');
 
@@ -74,12 +67,14 @@ const config = defineConfig({
       treeshake: true,
       preserveEntrySignatures: 'strict',
       output: {
+        entryFileNames: 'main.js',
+        format: 'es',
         // generatedCode: 'es5',
         // extend: true,
         // preserveModules: true,
         // dynamicImportInCjs: true,
         // externalImportAssertions: true,
-        esModule: true,
+        // esModule: true,
         // file: path.resolve(__dirname, 'dist/scripts/module.js'),
         // file: resolve(__dirname, 'dist/scripts/module.js'),
         dir: 'dist',
@@ -87,29 +82,16 @@ const config = defineConfig({
     },
   },
   plugins: [
-    resolve(),
-    commonjs({
-      transformMixedEsModules: true,
-    }),
-    updateModuleManifestPlugin(),
-    checker({
-      typescript: true,
-    }),
-    scss({
-      fileName: 'style.css',
-      // output: 'dist/style.css',
-      includePaths: ['styles/module.css', 'styles/styles.css'],
-      sourceMap: true,
-      watch: ['src/styles/*.scss'],
-    }),
     copy({
       targets: [
         {src: 'src/languages', dest: 'dist'},
         {src: 'src/templates', dest: 'dist'},
         {src: 'src/images', dest: 'dist'},
+        {src: 'src/styles', dest: 'dist'},
       ],
       hook: 'writeBundle',
     }),
+    updateModuleManifestPlugin(),
   ],
 });
 

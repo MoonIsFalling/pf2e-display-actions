@@ -1,6 +1,3 @@
-import {ActorPF2e} from '../../../types/src/module/actor';
-import {ConditionPF2e} from '../../../types/src/module/item';
-import {TokenDocumentPF2e} from '../../../types/src/module/token-document';
 import {moduleId, socketEvent} from '../constants';
 import {actionsFromConditions, handleDuplication, handleToken} from '../utils';
 import {DisplayActions2eData, EmitData} from '../types';
@@ -26,7 +23,7 @@ export class DisplayActions2e extends Application {
     duplicationNr: 0,
   };
 
-  protected showPlayerHandler: SelectiveShowApp = new SelectiveShowApp([String(game.user?.data.name)], this.state);
+  protected showPlayerHandler: SelectiveShowApp = new SelectiveShowApp([String(game.user?.name)], this.state);
 
   constructor(newState?: DisplayActions2eData) {
     super();
@@ -248,10 +245,10 @@ export class DisplayActions2e extends Application {
       return '';
     }
     let title = ' sent from ';
-    let name = game.users?.find((user: User) => {
-      return user.data._id === this.state.sentFromUserId;
-    })?.data.name;
-    return title.concat(name);
+    let user = game.users?.find((user: User) => {
+      return user._id === this.state.sentFromUserId;
+    });
+    return title.concat(user ? user.name : 'unknown User');
   }
 
   private getTitleDuplication(): string {
@@ -263,12 +260,13 @@ export class DisplayActions2e extends Application {
   }
 
   private _onButtonClickSelectedActors() {
-    canvas.tokens.controlled.forEach((token: TokenDocumentPF2e) => {
+    canvas.tokens.controlled.forEach(token => {
       // let app = new DisplayTokenActions2e(token.data._id);
+      let tokenDocument = token.document;
 
       let newState = foundry.utils.deepClone(this.state);
       newState.isLinkedToToken = true;
-      newState.tokenId = token.data._id;
+      newState.tokenId = tokenDocument.id;
       newState = this.generateActionsFromConditions(newState);
 
       handleToken({
@@ -297,16 +295,19 @@ export class DisplayActions2e extends Application {
   private generateActionsFromConditions(oldState: DisplayActions2eData): DisplayActions2eData {
     let newState = foundry.utils.deepClone(oldState);
 
-    let actor = ((canvas as Canvas).tokens.get(oldState.tokenId!)?.document as TokenDocumentPF2e).actor as ActorPF2e;
+    let actor = canvas.tokens.get(oldState.tokenId!)?.document.actor;
     // let actor = game.actors.tokens[oldState.tokenId!] as ActorPF2e;
 
-    let conditions = actor.conditions as Map<string, ConditionPF2e>;
+    if (actor) {
+      let conditions = actor.conditions;
+      let [numOfActions, numOfReactions] = actionsFromConditions(conditions);
+      newState.numOfActions = numOfActions;
+      newState.numOfReactions = numOfReactions;
+      return newState;
+    }
 
-    let [numOfActions, numOfReactions] = actionsFromConditions(conditions);
-
-    newState.numOfActions = numOfActions;
-    newState.numOfReactions = numOfReactions;
-
+    newState.numOfActions = 3;
+    newState.numOfReactions = 1;
     return newState;
   }
 }
