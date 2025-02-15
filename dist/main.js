@@ -95,7 +95,7 @@ class SelectiveShowApp extends FormApplication {
   _handleShowPlayers(state) {
     switch (game.settings.get(moduleId, "DisplayActions2e.Settings.ShowPlayerId")) {
       case "Normal":
-        this.render(true);
+        this.render(true, { focus: false });
         break;
       case "Chat":
         handleSendToChat({
@@ -109,7 +109,6 @@ class SelectiveShowApp extends FormApplication {
 }
 class DisplayActions2e extends Application {
   constructor(newState) {
-    var _a;
     super();
     this.clickString = "symbolClick";
     this.actionImage = "systems/pf2e/icons/actions/OneAction.webp";
@@ -122,15 +121,18 @@ class DisplayActions2e extends Application {
       numOfReactions: this.defaultNumOfReactions,
       classNameListActions: Array.from({ length: this.defaultNumOfActions }, () => "symbol"),
       classNameListReactions: Array.from({ length: this.defaultNumOfReactions }, () => "symbol"),
-      sentFromUserId: String(game.userId),
-      userListPermissions: [String(game.userId)],
-      tokenId: void 0,
+      sentFromUserId: game.userId,
+      userListPermissions: [game.userId],
+      actorUuid: void 0,
       isLinkedToToken: this.isLinkedToActor,
       duplicationNr: 0
     };
-    this.showPlayerHandler = new SelectiveShowApp([String((_a = game.user) == null ? void 0 : _a.name)], this.state);
+    this.showPlayerHandler = new SelectiveShowApp([game.user.name], this.state);
     if (newState) {
       this.state = newState;
+    }
+    if (game.settings.get(moduleId, "DisplayActions2e.Settings.UpdateTurnStart")) {
+      Hooks.on("pf2e.startTurn", startTurnUpdate);
     }
   }
   get title() {
@@ -173,11 +175,19 @@ class DisplayActions2e extends Application {
   }
   activateListeners(html) {
     super.activateListeners(html);
-    if (this.state.userListPermissions.includes(String(game.userId))) {
+    if (this.state.userListPermissions.includes(game.userId)) {
       html.find("img.symbol").on("click", this._onClickSymbolImage.bind(this));
       html.find("input.input-counter").on("change", this._onChangeCountNumber.bind(this));
       html.find("button.actorLink").on("click", this._onButtonClickSelectedActors.bind(this));
       html.find("button.actorUpdate").on("click", this._onButtonClickUpdateActors.bind(this));
+    }
+  }
+  async close(options) {
+    await super.close(options);
+    let module2 = game.modules.get(moduleId);
+    const index = module2.displayActions2e.indexOf(this, 0);
+    if (index > -1) {
+      module2.displayActions2e.splice(index, 1);
     }
   }
   _onClickSymbolImage(event) {
@@ -227,7 +237,7 @@ class DisplayActions2e extends Application {
           default:
             console.error(`${moduleId} incorrectly handled number of actions!`);
         }
-        this.render();
+        this.render(false, { focus: false });
         this.emitUpdate();
       }
     }
@@ -301,19 +311,16 @@ class DisplayActions2e extends Application {
    */
   getTitleToken() {
     let title = "";
-    let name = canvas.tokens.get(this.state.tokenId);
-    title = title.concat(" for ", String(name == null ? void 0 : name.name));
+    let actor = fromUuidSync(this.state.actorUuid);
+    title = title.concat(" for ", String(actor == null ? void 0 : actor.name));
     return title;
   }
   getTitleSentFrom() {
-    var _a;
     if (this.state.sentFromUserId === game.userId) {
       return "";
     }
     let title = " sent from ";
-    let user = (_a = game.users) == null ? void 0 : _a.find((user2) => {
-      return user2._id === this.state.sentFromUserId;
-    });
+    let user = game.users.get(this.state.sentFromUserId);
     return title.concat(user ? user.name : "unknown User");
   }
   getTitleDuplication() {
@@ -325,10 +332,9 @@ class DisplayActions2e extends Application {
   }
   _onButtonClickSelectedActors() {
     canvas.tokens.controlled.forEach((token) => {
-      let tokenDocument = token.document;
       let newState = foundry.utils.deepClone(this.state);
       newState.isLinkedToToken = true;
-      newState.tokenId = tokenDocument.id;
+      newState.actorUuid = token.actor ? token.actor.uuid : token.document.id;
       newState = this.generateActionsFromConditions(newState);
       handleToken({
         state: newState,
@@ -338,7 +344,7 @@ class DisplayActions2e extends Application {
   }
   _onButtonClickUpdateActors() {
     this.state = this.generateActionsFromConditions(this.state);
-    this.render();
+    this.render(false, { focus: false });
   }
   _onHeaderDuplication() {
     let newState = foundry.utils.deepClone(this.state);
@@ -348,15 +354,15 @@ class DisplayActions2e extends Application {
     });
   }
   generateActionsFromConditions(oldState) {
-    var _a;
     let newState = foundry.utils.deepClone(oldState);
-    let actor = (_a = canvas.tokens.get(oldState.tokenId)) == null ? void 0 : _a.document.actor;
-    if (actor) {
-      let conditions = actor.conditions;
-      let [numOfActions, numOfReactions] = actionsFromConditions(conditions);
-      newState.numOfActions = numOfActions;
-      newState.numOfReactions = numOfReactions;
-      return newState;
+    if (oldState.actorUuid) {
+      let actor = fromUuidSync(oldState.actorUuid);
+      if (actor) {
+        const [numOfActions, numOfReactions] = actionsFromConditions(actor.conditions);
+        newState.numOfActions = numOfActions;
+        newState.numOfReactions = numOfReactions;
+        return newState;
+      }
     }
     newState.numOfActions = 3;
     newState.numOfReactions = 1;
@@ -365,13 +371,13 @@ class DisplayActions2e extends Application {
 }
 function handleShowToAll(data) {
   const dialog = checkAndBuildApp(data);
-  dialog.render(true, { id: `DisplayActions2e${data.user}` });
+  dialog.render(true, { id: `DisplayActions2e${data.user}`, focus: false });
 }
 function handleShowToSelection(data) {
   var _a;
   if ((_a = data.userList) == null ? void 0 : _a.includes(String(game.userId))) {
     const dialog = checkAndBuildApp(data);
-    dialog.render(true, { id: `DisplayActions2e${data.user}` });
+    dialog.render(true, { id: `DisplayActions2e${data.user}`, focus: false });
   }
 }
 function handleShowWithPermission(data) {
@@ -384,17 +390,17 @@ function handleUpdate(data) {
     return user._id === data.state.sentFromUserId;
   })) == null ? void 0 : _b.name;
   if (nameInTitle) {
-    module2.displayActions2e.forEach((app) => {
+    for (const app of module2.displayActions2e.filter((app2) => app2.getState().actorUuid === data.state.actorUuid)) {
       if (app.title.includes(nameInTitle) || data.state.sentFromUserId === game.userId) {
         app.setState(data.state);
-        app.render(false, { id: `DisplayActions2e${data.user}` });
+        app.render(true, { id: `DisplayActions2e${data.user}-${data.state.actorUuid}`, focus: false });
       }
-    });
+    }
   }
 }
 function handleToken(data) {
   const dialog = checkAndBuildApp(data);
-  dialog.render(true, { id: `DisplayActions2e${data.user}` });
+  dialog.render(true, { id: `DisplayActions2e${data.state.actorUuid}`, focus: false });
 }
 function handleDuplication(data) {
   let newState = foundry.utils.deepClone(data.state);
@@ -405,7 +411,7 @@ function handleDuplication(data) {
   }));
   const dialog = new DisplayActions2e(newState);
   const module2 = game.modules.get(moduleId);
-  dialog.render(true, { id: `DisplayActions2e${data.user}${newState.duplicationNr}` });
+  dialog.render(true, { id: `DisplayActions2e${data.user}${newState.duplicationNr}`, focus: false });
   module2.displayActions2e.push(dialog);
 }
 function handleSendToChat(data) {
@@ -419,13 +425,13 @@ function handleSendToChat(data) {
     }
   }
 }
-function checkForApp(data) {
+function checkForApp(data, ignoreUser = false) {
   let module2 = game.modules.get(moduleId);
   let app = module2.displayActions2e.find((app2) => {
     let appState = app2.getState();
-    let control = appState.sentFromUserId === data.state.sentFromUserId;
+    let control = ignoreUser || appState.sentFromUserId === data.state.sentFromUserId;
     control = control && appState.duplicationNr.almostEqual(data.state.duplicationNr);
-    control = control && appState.tokenId === data.state.tokenId;
+    control = control && appState.actorUuid === data.state.actorUuid;
     control = control && appState.isLinkedToToken === data.state.isLinkedToToken;
     return control;
   });
@@ -433,11 +439,11 @@ function checkForApp(data) {
 }
 function checkAndBuildApp(data) {
   let module2 = game.modules.get(moduleId);
-  let newApp = new DisplayActions2e(data.state);
   let app = checkForApp(data);
   if (app) {
     return app;
   }
+  let newApp = new DisplayActions2e(data.state);
   module2.displayActions2e.push(newApp);
   return newApp;
 }
@@ -453,6 +459,19 @@ function actionsFromConditions(conditions) {
   let decrementActions = stun >= slowed ? stun : slowed;
   numOfActions = numOfActions + quicken - decrementActions;
   return [numOfActions, numOfReactions];
+}
+function startTurnUpdate(combatant, encounter, userId) {
+  const module2 = game.modules.get(moduleId);
+  const actorUuid = combatant.actor.uuid;
+  const app = module2.displayActions2e.find((app2) => {
+    const appState = app2.getState();
+    return appState.actorUuid === actorUuid;
+  });
+  if (app) {
+    app.setState(app.generateActionsFromConditions(app.getState()));
+    app.render(false, { focus: false });
+    app.emitUpdate();
+  }
 }
 const settingDuplicateId = {
   name: "DisplayActions2e.Settings.DuplicateSetting",
@@ -484,9 +503,18 @@ const settingShowPlayerId = {
   },
   default: "Normal"
 };
+const settingUpdateTurnStart = {
+  name: "DisplayActions2e.Settings.UpdateTurnStart",
+  hint: "DisplayActions2e.Settings.UpdateTurnStartHint",
+  config: true,
+  scope: "client",
+  type: Boolean,
+  default: false
+};
 function settingSetup() {
   game.settings.register(moduleId, "DisplayActions2e.Settings.DuplicateId", settingDuplicateId);
   game.settings.register(moduleId, "DisplayActions2e.Settings.LinkActorId", settingLinkActorId);
+  game.settings.register(moduleId, "DisplayActions2e.Settings.UpdateTurnStart", settingUpdateTurnStart);
   game.settings.register(moduleId, "DisplayActions2e.Settings.ShowPlayerId", settingShowPlayerId);
 }
 let module;
@@ -507,7 +535,7 @@ Hooks.on("getSceneControlButtons", (hudButtons) => {
     visible: true,
     onClick: async () => {
       var _a2;
-      homeDisplayActions.render(true);
+      homeDisplayActions.render(true, { focus: false });
       (_a2 = game.socket) == null ? void 0 : _a2.emit("module.DisplayActions2e", { event: "DisplayActions2e" });
     }
   };

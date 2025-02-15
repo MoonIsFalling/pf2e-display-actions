@@ -27,7 +27,7 @@ Hooks.on('getSceneControlButtons', (hudButtons: SceneControl[]) => {
     button: true,
     visible: true,
     onClick: async () => {
-      homeDisplayActions.render(true);
+      homeDisplayActions.render(true, {focus: false});
       game.socket?.emit('module.DisplayActions2e', {event: 'DisplayActions2e'});
     },
   };

@@ -1,6 +1,5 @@
 import {moduleId} from './constants';
 
-// @ts-ignore
 const settingDuplicateId: SettingRegistration = {
   name: 'DisplayActions2e.Settings.DuplicateSetting',
   hint: 'DisplayActions2e.Settings.DuplicateHint',
@@ -10,7 +9,6 @@ const settingDuplicateId: SettingRegistration = {
   default: false,
 };
 
-// @ts-ignore
 const settingLinkActorId: SettingRegistration = {
   name: 'DisplayActions2e.Settings.LinkActorSetting',
   hint: 'DisplayActions2e.Settings.LinkActorHint',
@@ -20,7 +18,6 @@ const settingLinkActorId: SettingRegistration = {
   default: false,
 };
 
-// @ts-ignore
 const settingShowPlayerId: SettingRegistration = {
   name: 'DisplayActions2e.Settings.ShowPlayerSetting',
   hint: 'DisplayActions2e.Settings.ShowPlayerHint',
@@ -36,8 +33,18 @@ const settingShowPlayerId: SettingRegistration = {
   default: 'Normal',
 };
 
+const settingUpdateTurnStart: SettingRegistration = {
+  name: 'DisplayActions2e.Settings.UpdateTurnStart',
+  hint: 'DisplayActions2e.Settings.UpdateTurnStartHint',
+  config: true,
+  scope: 'client',
+  type: Boolean,
+  default: false,
+};
+
 export function settingSetup(): void {
   game.settings.register(moduleId, 'DisplayActions2e.Settings.DuplicateId', settingDuplicateId);
   game.settings.register(moduleId, 'DisplayActions2e.Settings.LinkActorId', settingLinkActorId);
+  game.settings.register(moduleId, 'DisplayActions2e.Settings.UpdateTurnStart', settingUpdateTurnStart);
   game.settings.register(moduleId, 'DisplayActions2e.Settings.ShowPlayerId', settingShowPlayerId);
 }

@@ -1,7 +1,6 @@
-import {ModuleHomebrewData} from 'foundry-pf2e';
 import {DisplayActions2e} from './apps/displayActions';
 
-export interface MyModule extends ModuleHomebrewData {
+export interface MyModule extends Module {
   displayActions2e: DisplayActions2e[];
 }
 
@@ -20,7 +19,7 @@ export interface DisplayActions2eData {
   sentFromUserId: string;
   userListPermissions: string[];
   duplicationNr: number;
-  tokenId?: string;
+  actorUuid?: string;
   isLinkedToToken?: boolean;
 }
 
