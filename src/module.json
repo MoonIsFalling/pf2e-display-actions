@@ -29,11 +29,13 @@
     "./images/**",
     "./languages/**",
     "./scripts/**",
+    "./styles/**",
     "./templates/**",
     "./module.json",
     "./README.md",
     "./*.css",
-    "./*.css.map"
+    "./*.css.map",
+    "./*.js"
   ],
   "socket": true,
   "url": "https://github.com/MoonIsFalling/pf2e-display-actions",
