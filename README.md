@@ -2,10 +2,9 @@
 
 ![GitHub Releases](https://img.shields.io/badge/dynamic/json?label=Downloads@latest&query=assets%5B1%5D.download_count&url=https%3A%2F%2Fapi.github.com%2Frepos%2FMoonIsFalling%2Fpf2e-display-actions%2Freleases%2Flatest)
 ![GitHub All Releases](https://img.shields.io/github/downloads/MoonIsFalling/pf2e-display-actions/total?label=Downloads+total)
+![Latest Release Download Count](https://img.shields.io/github/downloads/MoonIsFalling/pf2e-display-actions/latest/module.zip)
 
 Displays Pathfinder2e action and reaction buttons.
-
-This module supports [Bug Reporter](https://github.com/League-of-Foundry-Developers/bug-reporter).
 
 ## Usage
 
@@ -85,7 +84,12 @@ Currently WIP I may have missed many interactions.
 
 #### v 1.12.0
 
-- added v12
+- added v12 support
+
+##### 1.12.1
+
+- Add option to automatically update window at the start of the Actor's turn (when the PC normally gets its new allocation of actions).
+  - Provided by [farling42](https://github.com/farling42)
 
 ## Roadmap
 
@@ -98,6 +102,12 @@ Currently WIP I may have missed many interactions.
 
 - I used BringingFire's [Blog](https://bringingfire.com/blog/intro-to-foundry-module-development) and respective [template](https://github.com/BringingFire/foundry-module-ts-template)
 
-- Module [FVTT-SelectiveShow](https://github.com/moo-man/FVTT-SelectiveShow) under is of the MIT License
+- Module [FVTT-SelectiveShow](https://github.com/moo-man/FVTT-SelectiveShow) under use of the MIT License
 
 - thanks for [tehguitarist](https://github.com/tehguitarist) for contributing CSS
+
+- thanks to [farling42](https://github.com/farling42) for:
+  - improving Link To Actor Logic
+  - adding the option to Update on turn start
+  - improving performance and rendering
+  - updating the github workflow
