@@ -99,9 +99,6 @@ export class SelectiveShowApp extends FormApplication {
       document.getElementsByClassName('selective-show-form')[0].children[0].children[0].children[0].children,
     ) as HTMLOptionElement[];
     this.userNameList = selector.map((element: HTMLOptionElement) => {
-      // 👇️ ts-ignore ignores any ts errors on the next line
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       if (element.selected) {
         return element.value;
       }
@@ -121,7 +118,7 @@ export class SelectiveShowApp extends FormApplication {
   _handleShowPlayers(state: DisplayActions2eData) {
     switch (game.settings.get(moduleId, 'DisplayActions2e.Settings.ShowPlayerId')) {
       case 'Normal':
-        this.render(true);
+        this.render(true, {focus: false});
         break;
       case 'Chat':
         handleSendToChat({

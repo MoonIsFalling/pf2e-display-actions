@@ -1,7 +1,6 @@
-import {ModuleData} from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/packages.mjs';
 import {DisplayActions2e} from './apps/displayActions';
 
-export interface MyModule extends ModuleData {
+export interface MyModule extends Module {
   displayActions2e: DisplayActions2e[];
 }
 
@@ -20,7 +19,7 @@ export interface DisplayActions2eData {
   sentFromUserId: string;
   userListPermissions: string[];
   duplicationNr: number;
-  tokenId?: string;
+  actorUuid?: string;
   isLinkedToToken?: boolean;
 }
 

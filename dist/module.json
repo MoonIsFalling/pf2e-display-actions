@@ -1,26 +1,19 @@
 {
-    "$schema": "https://json.schemastore.org/foundryvtt-manifest.json",
-    "name": "pf2e-display-actions",
     "id": "pf2e-display-actions",
-    "authors": [
-        {
-            "name": "Thieftain",
-            "GitHub": "MoonIsFalling",
-            "Discord": "Thieftain#0744"
-        }
-    ],
     "title": "Pf2e Display Actions",
     "description": "A small module to display the pathfinder action economy for convinience.",
-    "version": "1.11.0",
-    "packs": [],
-    "system": [
-        "pf2e"
+    "authors": [
+        {
+            "id": "Thieftain",
+            "name": "Thieftain",
+            "gitHub": "MoonIsFalling",
+            "discord": "Thieftain#0744"
+        }
     ],
-    "scripts": [],
+    "version": "1.12.1",
     "compatibility": {
-        "minimum": "10",
-        "verified": "11",
-        "maximum": "11"
+        "minimum": "12",
+        "verified": "12"
     },
     "languages": [
         {
@@ -29,15 +22,16 @@
             "path": "languages/en.json"
         }
     ],
+    "system": [
+        "pf2e"
+    ],
     "styles": [
-        "style.css"
+        "styles/styles.css",
+        "styles/module.css"
     ],
     "esmodules": [
-        "scripts/module.js"
+        "main.js"
     ],
-    "url": "https://github.com/MoonIsFalling/pf2e-display-actions",
-    "manifest": "https://github.com/MoonIsFalling/pf2e-display-actions/releases/download/1.11.0/module.json",
-    "download": "https://github.com/MoonIsFalling/pf2e-display-actions/releases/download/1.11.0/module.zip",
     "includes": [
         "./images/**",
         "./languages/**",
@@ -49,13 +43,20 @@
         "./*.css.map"
     ],
     "socket": true,
+    "url": "https://github.com/MoonIsFalling/pf2e-display-actions",
+    "manifest": "https://github.com/MoonIsFalling/pf2e-display-actions/releases/download/1.12.1/module.json",
+    "download": "https://github.com/MoonIsFalling/pf2e-display-actions/releases/download/1.12.1/module.zip",
     "bugs": "https://github.com/MoonIsFalling/pf2e-display-actions/issues",
     "flags": {
         "allowBugReporter": true
     },
     "relationships": {
-        "system": [
-            "pf2e"
+        "systems": [
+            {
+                "id": "pf2e",
+                "type": "system",
+                "compatibility": {}
+            }
         ]
     }
 }

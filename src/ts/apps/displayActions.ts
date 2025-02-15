@@ -1,10 +1,8 @@
-import {ActorPF2e} from '../../../types/src/module/actor';
-import {ConditionPF2e} from '../../../types/src/module/item';
-import {TokenDocumentPF2e} from '../../../types/src/module/token-document';
 import {moduleId, socketEvent} from '../constants';
-import {actionsFromConditions, handleDuplication, handleToken} from '../utils';
-import {DisplayActions2eData, EmitData} from '../types';
+import {actionsFromConditions, handleDuplication, handleToken, startTurnUpdate} from '../utils';
+import {DisplayActions2eData, EmitData, MyModule} from '../types';
 import {SelectiveShowApp} from './selectiveShow';
+import {ActorPF2e} from 'foundry-pf2e';
 
 export class DisplayActions2e extends Application {
   protected clickString = 'symbolClick';
@@ -19,20 +17,24 @@ export class DisplayActions2e extends Application {
     numOfReactions: this.defaultNumOfReactions,
     classNameListActions: Array.from({length: this.defaultNumOfActions}, () => 'symbol'),
     classNameListReactions: Array.from({length: this.defaultNumOfReactions}, () => 'symbol'),
-    sentFromUserId: String(game.userId),
-    userListPermissions: [String(game.userId)],
-    tokenId: undefined,
+    sentFromUserId: game.userId,
+    userListPermissions: [game.userId],
+    actorUuid: undefined,
     isLinkedToToken: this.isLinkedToActor,
     duplicationNr: 0,
   };
 
-  protected showPlayerHandler: SelectiveShowApp = new SelectiveShowApp([String(game.user?.data.name)], this.state);
+  protected showPlayerHandler: SelectiveShowApp = new SelectiveShowApp([game.user.name], this.state);
 
   constructor(newState?: DisplayActions2eData) {
     super();
 
     if (newState) {
       this.state = newState;
+    }
+
+    if (game.settings.get(moduleId, 'DisplayActions2e.Settings.UpdateTurnStart') as boolean) {
+      Hooks.on('pf2e.startTurn', startTurnUpdate);
     }
   }
 
@@ -83,12 +85,21 @@ export class DisplayActions2e extends Application {
   override activateListeners(html: JQuery<HTMLElement>): void {
     super.activateListeners(html);
     // register events for all users with permission
-    if (this.state.userListPermissions.includes(String(game.userId))) {
+    if (this.state.userListPermissions.includes(game.userId)) {
       html.find('img.symbol').on('click', this._onClickSymbolImage.bind(this));
       html.find('input.input-counter').on('change', this._onChangeCountNumber.bind(this));
-      // html.find('button.actorLink').on('click', DataWrapper2e.createApplications);
       html.find('button.actorLink').on('click', this._onButtonClickSelectedActors.bind(this));
       html.find('button.actorUpdate').on('click', this._onButtonClickUpdateActors.bind(this));
+    }
+  }
+
+  override async close(options?: {force?: boolean}): Promise<void> {
+    await super.close(options);
+
+    let module = game.modules.get(moduleId) as unknown as MyModule;
+    const index = module.displayActions2e.indexOf(this, 0);
+    if (index > -1) {
+      module.displayActions2e.splice(index, 1);
     }
   }
 
@@ -145,7 +156,7 @@ export class DisplayActions2e extends Application {
           default:
             console.error(`${moduleId} incorrectly handled number of actions!`);
         }
-        this.render();
+        this.render(false, {focus: false});
         this.emitUpdate();
       }
     }
@@ -213,7 +224,7 @@ export class DisplayActions2e extends Application {
     }
   }
 
-  protected emitUpdate() {
+  public emitUpdate() {
     game.socket?.emit(socketEvent, {
       operation: 'update',
       state: this.state,
@@ -238,8 +249,8 @@ export class DisplayActions2e extends Application {
   private getTitleToken(): string {
     let title = '';
 
-    let name = (canvas as Canvas).tokens.get(this.state.tokenId as string);
-    title = title.concat(' for ', String(name?.name));
+    let actor = fromUuidSync(this.state.actorUuid as string);
+    title = title.concat(' for ', String(actor?.name));
     return title;
   }
 
@@ -248,10 +259,9 @@ export class DisplayActions2e extends Application {
       return '';
     }
     let title = ' sent from ';
-    let name = game.users?.find((user: User) => {
-      return user.data._id === this.state.sentFromUserId;
-    })?.data.name;
-    return title.concat(name);
+    let user = game.users.get(this.state.sentFromUserId);
+
+    return title.concat(user ? user.name : 'unknown User');
   }
 
   private getTitleDuplication(): string {
@@ -263,12 +273,10 @@ export class DisplayActions2e extends Application {
   }
 
   private _onButtonClickSelectedActors() {
-    canvas.tokens.controlled.forEach((token: TokenDocumentPF2e) => {
-      // let app = new DisplayTokenActions2e(token.data._id);
-
+    canvas.tokens.controlled.forEach(token => {
       let newState = foundry.utils.deepClone(this.state);
       newState.isLinkedToToken = true;
-      newState.tokenId = token.data._id;
+      newState.actorUuid = token.actor ? token.actor.uuid : token.document.id;
       newState = this.generateActionsFromConditions(newState);
 
       handleToken({
@@ -281,7 +289,7 @@ export class DisplayActions2e extends Application {
 
   private _onButtonClickUpdateActors() {
     this.state = this.generateActionsFromConditions(this.state);
-    this.render();
+    this.render(false, {focus: false});
   }
 
   private _onHeaderDuplication() {
@@ -296,17 +304,21 @@ export class DisplayActions2e extends Application {
 
   private generateActionsFromConditions(oldState: DisplayActions2eData): DisplayActions2eData {
     let newState = foundry.utils.deepClone(oldState);
+    // can only generate action if linked to a token
+    if (oldState.actorUuid) {
+      let actor = fromUuidSync(oldState.actorUuid) as ActorPF2e;
+      // let actor = game.actors.tokens[oldState.tokenId!] as ActorPF2e;
 
-    let actor = ((canvas as Canvas).tokens.get(oldState.tokenId!)?.document as TokenDocumentPF2e).actor as ActorPF2e;
-    // let actor = game.actors.tokens[oldState.tokenId!] as ActorPF2e;
+      if (actor) {
+        const [numOfActions, numOfReactions] = actionsFromConditions(actor.conditions);
+        newState.numOfActions = numOfActions;
+        newState.numOfReactions = numOfReactions;
+        return newState;
+      }
+    }
 
-    let conditions = actor.conditions as Map<string, ConditionPF2e>;
-
-    let [numOfActions, numOfReactions] = actionsFromConditions(conditions);
-
-    newState.numOfActions = numOfActions;
-    newState.numOfReactions = numOfReactions;
-
+    newState.numOfActions = 3;
+    newState.numOfReactions = 1;
     return newState;
   }
 }
