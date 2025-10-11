@@ -13,6 +13,8 @@ jobs:
         with:
           node-version: 22
           cache: npm
+      - name: Build
+        run: npm ci && npm run build
       # Get the version from 'module.json'
       - name: Get Version
         shell: bash
@@ -23,8 +25,6 @@ jobs:
         shell: bash
         id: get-includes
         run: echo "::set-output name=files::$(node ./.github/workflows/get-includes.js)"
-      - name: Build
-        run: npm ci && npm run build
       # create a zip file with all files required by the module to add to the release
       - name: Zip Files
         working-directory: ./dist #SORRY BUT YOU HAVE TO USE DIST JUST LIKE GET OVER IT OR FIGURE OUT A BETTER WAY
