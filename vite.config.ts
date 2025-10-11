@@ -1,7 +1,6 @@
 import * as fsPromises from 'fs/promises';
-import copy from 'rollup-plugin-copy';
-import {defineConfig, Plugin} from 'vite';
-import {resolve as pathResolve} from 'path';
+import { defineConfig, Plugin } from 'vite';
+import { resolve as pathResolve } from 'path';
 
 // const path = require('path');
 
@@ -13,10 +12,6 @@ const projectName = 'pf2e-display-actions';
 console.log(process.env.VSCODE_INJECTION);
 
 const config = defineConfig({
-  root: 'src/',
-  base: `/modules/${projectName}/`,
-  // publicDir: path.pathResolve(__dirname, 'public'),
-  publicDir: pathResolve(__dirname, 'public'),
   server: {
     port: 30001,
     open: true,
@@ -36,16 +31,8 @@ const config = defineConfig({
       },
     ],
   },
-  // optimizeDeps: {
-  //   // exclude: ['@sveltejs/vite-plugin-svelte'],
-  //   include: ['jszip'],
-  // },
   build: {
-    // outDir: path.pathResolve(__dirname, 'dist'),
-    outDir: pathResolve(__dirname, 'dist'),
     sourcemap: true,
-    emptyOutDir: true,
-    reportCompressedSize: true,
     minify: 'terser',
     terserOptions: {
       mangle: true,
@@ -55,7 +42,6 @@ const config = defineConfig({
     },
     lib: {
       name: projectName,
-      // entry: path.pathResolve(__dirname, 'src/ts/module.ts'),
       entry: pathResolve(__dirname, 'src/ts/module.ts'),
       formats: ['es'],
       fileName: 'scripts/module',
@@ -69,28 +55,10 @@ const config = defineConfig({
       output: {
         entryFileNames: 'main.js',
         format: 'es',
-        // generatedCode: 'es5',
-        // extend: true,
-        // preserveModules: true,
-        // dynamicImportInCjs: true,
-        // externalImportAssertions: true,
-        // esModule: true,
-        // file: path.resolve(__dirname, 'dist/scripts/module.js'),
-        // file: resolve(__dirname, 'dist/scripts/module.js'),
-        dir: 'dist',
       },
     },
   },
   plugins: [
-    copy({
-      targets: [
-        {src: 'src/languages', dest: 'dist'},
-        {src: 'src/templates', dest: 'dist'},
-        {src: 'src/images', dest: 'dist'},
-        {src: 'src/styles', dest: 'dist'},
-      ],
-      hook: 'writeBundle',
-    }),
     updateModuleManifestPlugin(),
   ],
 });

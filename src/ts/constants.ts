@@ -1,5 +1,5 @@
-import {id} from '../module.json';
-import {ConditionModifierDictionary} from './types';
+import { id } from '../module.json';
+import { ConditionModifierDictionary } from './types';
 
 export const moduleId = id;
 export const moduleName = 'DisplayActions2e';

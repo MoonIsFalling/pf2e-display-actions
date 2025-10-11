@@ -22,9 +22,15 @@
       "path": "languages/en.json"
     }
   ],
-  "system": ["pf2e"],
-  "styles": ["styles/styles.css", "styles/module.css"],
-  "esmodules": ["main.js"],
+  "system": [
+    "pf2e"
+  ],
+  "styles": [
+    "styles/module.css"
+  ],
+  "esmodules": [
+    "main.js"
+  ],
   "includes": [
     "./images/**",
     "./languages/**",
@@ -54,5 +60,4 @@
       }
     ]
   }
-  
 }
