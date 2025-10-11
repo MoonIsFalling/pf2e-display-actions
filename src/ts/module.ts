@@ -3,11 +3,11 @@
 import '../styles/module.css';
 import '../styles/styles.css';
 
-import { moduleId, socketEvent } from './constants';
-import { EmitData, MyModule } from './types';
-import { handleShowToAll, handleShowToSelection, handleShowWithPermission, handleUpdate } from './utils';
-import { DisplayActions2e } from './apps/displayActions';
-import { settingSetup } from './settings';
+import {moduleId, socketEvent} from './constants';
+import {EmitData, MyModule} from './types';
+import {handleShowToAll, handleShowToSelection, handleShowWithPermission, handleUpdate} from './utils';
+import {DisplayActions2e} from './apps/displayActions';
+import {settingSetup} from './settings';
 
 let module: MyModule;
 let homeDisplayActions: DisplayActions2e;
@@ -29,8 +29,8 @@ Hooks.on('getSceneControlButtons', (hudButtons: SceneControl[]) => {
     button: true,
     visible: true,
     onClick: async () => {
-      homeDisplayActions.render(true, { focus: false });
-      game.socket?.emit('module.DisplayActions2e', { event: 'DisplayActions2e' });
+      homeDisplayActions.render(true, {focus: false});
+      game.socket?.emit('module.DisplayActions2e', {event: 'DisplayActions2e'});
     },
   };
 
