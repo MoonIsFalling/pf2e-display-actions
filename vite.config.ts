@@ -1,6 +1,6 @@
 import * as fsPromises from 'fs/promises';
-import { defineConfig, Plugin } from 'vite';
-import { resolve as pathResolve } from 'path';
+import {defineConfig, Plugin} from 'vite';
+import {resolve as pathResolve} from 'path';
 
 // const path = require('path');
 
@@ -33,34 +33,24 @@ const config = defineConfig({
   },
   build: {
     sourcemap: true,
-    minify: 'terser',
-    terserOptions: {
-      mangle: true,
-      keep_classnames: true,
-      keep_fnames: true,
-      compress: true,
-    },
     lib: {
       name: projectName,
       entry: pathResolve(__dirname, 'src/ts/module.ts'),
       formats: ['es'],
-      fileName: 'scripts/module',
     },
-    rollupOptions: {
-      input: {
-        index: pathResolve(__dirname, 'src/ts/module.ts'),
-      },
-      treeshake: true,
-      preserveEntrySignatures: 'strict',
-      output: {
-        entryFileNames: 'main.js',
-        format: 'es',
-      },
-    },
+    // rollupOptions: {
+    //   input: {
+    //     index: pathResolve(__dirname, 'src/ts/module.ts'),
+    //   },
+    //   treeshake: true,
+    //   preserveEntrySignatures: 'strict',
+    //   // output: {
+    //   //   entryFileNames: 'main.ts',
+    //   //   format: 'es',
+    //   // },
+    // },
   },
-  plugins: [
-    updateModuleManifestPlugin(),
-  ],
+  plugins: [updateModuleManifestPlugin()],
 });
 
 function updateModuleManifestPlugin(): Plugin {
