@@ -2,16 +2,13 @@ import * as fsPromises from 'fs/promises';
 import {defineConfig, Plugin} from 'vite';
 import {resolve as pathResolve} from 'path';
 
-// const path = require('path');
-
 const moduleVersion = process.env.MODULE_VERSION;
 const githubProject = 'MoonIsFalling/pf2e-display-actions';
 const projectName = 'pf2e-display-actions';
-// const githubTag = process.env.GH_TAG;
 
 console.log(process.env.VSCODE_INJECTION);
 
-const config = defineConfig({
+export default defineConfig({
   server: {
     port: 30001,
     open: true,
@@ -38,17 +35,6 @@ const config = defineConfig({
       entry: pathResolve(__dirname, 'src/ts/module.ts'),
       formats: ['es'],
     },
-    // rollupOptions: {
-    //   input: {
-    //     index: pathResolve(__dirname, 'src/ts/module.ts'),
-    //   },
-    //   treeshake: true,
-    //   preserveEntrySignatures: 'strict',
-    //   // output: {
-    //   //   entryFileNames: 'main.ts',
-    //   //   format: 'es',
-    //   // },
-    // },
   },
   plugins: [updateModuleManifestPlugin()],
 });
@@ -76,5 +62,3 @@ function updateModuleManifestPlugin(): Plugin {
     },
   };
 }
-
-export default config;
