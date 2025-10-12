@@ -23,20 +23,8 @@
     }
   ],
   "system": ["pf2e"],
-  "styles": ["styles/module.css"],
-  "esmodules": ["main.js"],
-  "includes": [
-    "./images/**",
-    "./languages/**",
-    "./scripts/**",
-    "./styles/**",
-    "./templates/**",
-    "./module.json",
-    "./README.md",
-    "./*.css",
-    "./*.css.map",
-    "./*.js"
-  ],
+  "styles": ["pf2e-display-actions.css"],
+  "esmodules": ["pf2e-display-actions.js"],
   "socket": true,
   "url": "https://github.com/MoonIsFalling/pf2e-display-actions",
   "manifest": "https://github.com/MoonIsFalling/pf2e-display-actions/releases/latest/download/module.json",
