@@ -1,6 +1,8 @@
 // Do not remove this import. If you do Vite will think your styles are dead
 // code and not include them in the build output.
 import '../styles/module.css';
+import '../styles/styles.css';
+
 import {moduleId, socketEvent} from './constants';
 import {EmitData, MyModule} from './types';
 import {handleShowToAll, handleShowToSelection, handleShowWithPermission, handleUpdate} from './utils';
