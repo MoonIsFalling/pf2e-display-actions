@@ -20,6 +20,8 @@
 }
 
 .counter {
+    align-items: center;
+    gap: 5px;
     grid-area: "counter";
     display: flex;
     height: fit-content;
